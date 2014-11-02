@@ -119,7 +119,7 @@ void CslDlgAbout::set_properties()
     label_wxversion->SetLabel(s);
 
     s = wxString(_(
-            		"Red Eclipse support: Morgan Borman"
+            		"Red Eclipse support: Morgan Borman\n\n"
         		))+
         wxString(_(
                      "Application icon:\n"
