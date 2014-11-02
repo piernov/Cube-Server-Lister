@@ -1281,9 +1281,11 @@ void CslListCtrlServer::ListSort(wxInt32 column)
     m_processSelectEvent=true;
 
 #ifndef __WXMSW__
+#if wxMAJOR_VERSION == 2 and wxMINOR_VERSION == 8 // If wxWidgets 2.8.x
     //removes flicker after sorting
     wxIdleEvent idle;
     wxTheApp->SendIdleEvents(this,idle);
+#endif
 #endif
 }
 

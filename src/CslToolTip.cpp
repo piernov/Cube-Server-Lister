@@ -120,7 +120,7 @@ void CslToolTip::CreateFrame()
 {
     CslToolTipEvent event(::wxGetMousePosition());
 
-    if (!m_parent->ProcessEvent(event))
+    if (!m_parent->ProcessWindowEvent(event))
         return;
 
     m_frame=new wxFrame(m_parent,wxID_ANY,wxEmptyString,wxDefaultPosition,wxDefaultSize,

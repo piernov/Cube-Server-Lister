@@ -72,7 +72,7 @@
 #define PATHDIVA wxT('/')
 #endif
 
-#define CSL_USER_DATADIR wxString(wxStandardPaths().GetUserDataDir()+PATHDIV)
+#define CSL_USER_DATADIR wxString(wxStandardPaths::Get().GetUserDataDir()+PATHDIV)
 
 #ifdef __WXDEBUG__
 void Debug_Printf(const char *file,int line,const char *func,const char *fmt,...);

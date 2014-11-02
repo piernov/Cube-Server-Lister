@@ -1278,7 +1278,7 @@ void CslFrame::LoadSettings()
     }
     if (config.Read(wxT("GameOutputPath"),&s)) g_cslSettings->gameOutputPath=s;
     if (g_cslSettings->gameOutputPath.IsEmpty())
-        g_cslSettings->gameOutputPath=wxStandardPaths().GetUserDataDir();
+        g_cslSettings->gameOutputPath=wxStandardPaths::Get().GetUserDataDir();
     if (config.Read(wxT("AutoSaveOutput"),&val)) g_cslSettings->autoSaveOutput=val!=0;
     if (config.Read(wxT("LastSelectedGame"),&s)) g_cslSettings->lastGame=s;
     if (config.Read(wxT("MinPlaytime"),&val))

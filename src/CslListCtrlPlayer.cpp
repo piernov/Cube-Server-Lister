@@ -89,9 +89,11 @@ void CslPanelPlayer::OnSize(wxSizeEvent& event)
 #endif //__WXMAC__
     m_listCtrl->ListAdjustSize(size);
 #ifdef __WXMAC__
+#if wxMAJOR_VERSION == 2 and wxMINOR_VERSION == 8 // If wxWidgets 2.8.x
     //fixes flicker after resizing
     wxIdleEvent idle;
     wxTheApp->SendIdleEvents(this,idle);
+#endif
 #endif //__WXMAC__
 
     event.Skip();
@@ -628,9 +630,11 @@ void CslListCtrlPlayer::ListSort(const wxInt32 column)
     m_processSelectEvent=true;
 
 #ifndef __WXMSW__
+#if wxMAJOR_VERSION == 2 and wxMINOR_VERSION == 8 // If wxWidgets 2.8.x
     //removes flicker on autosort for wxGTK and wxMAC
     wxIdleEvent idle;
     wxTheApp->SendIdleEvents(this,idle);
+#endif
 #endif
 }
 

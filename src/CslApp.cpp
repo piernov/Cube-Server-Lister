@@ -67,7 +67,7 @@ bool CslApp::OnInit()
     ::wxSetWorkingDirectory(wxPathOnly(wxTheApp->argv[0]));
     g_basePath=::wxGetCwd();
 
-    m_locale.Init(wxLANGUAGE_DEFAULT,wxLOCALE_CONV_ENCODING);
+    m_locale.Init(wxLocale::GetSystemLanguage());
     m_locale.AddCatalogLookupPathPrefix(LOCALEPATH);
 #ifdef __WXGTK__
     m_locale.AddCatalogLookupPathPrefix(g_basePath+wxString(wxT("/lang")));
