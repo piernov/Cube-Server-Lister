@@ -1,77 +1,79 @@
-AC_INIT(src)
-AM_INIT_AUTOMAKE(csl, 0.8.2, -Wno-portability)
-AC_CONFIG_HEADER([src/config.h])
+#                                               -*- Autoconf -*-
+# Process this file with autoconf to produce a configure script.
 
+AC_PREREQ([2.69])
+AC_INIT([csl], [0.9])
+AC_CONFIG_SRCDIR([src/CslApp.cpp])
+AC_CONFIG_HEADERS([config.h])
+AC_CONFIG_MACRO_DIR([m4])
+
+AM_INIT_AUTOMAKE([-Wno-portability])
+
+# i18n
+IT_PROG_INTLTOOL([0.50.0])
+
+GETTEXT_PACKAGE=AC_PACKAGE_NAME
+AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE, ["$GETTEXT_PACKAGE"], [Define to the Gettext package name])
+AC_SUBST([GETTEXT_PACKAGE])
+
+
+# Add some compiler flags
 DEFAULT_FLAGS="-fsigned-char -Wall -fno-strict-aliasing"
 CFLAGS="$CFLAGS $DEFAULT_FLAGS"
 CXXFLAGS="$CXXFLAGS $DEFAULT_FLAGS"
 
+
+# Checks for programs.
 AC_LANG_CPLUSPLUS
 AC_PROG_CXX
 AC_PROG_CC
-AM_PROG_LIBTOOL
-AC_PROG_INTLTOOL
-AC_PROG_RANLIB
+AC_PROG_INSTALL
+AC_PROG_MAKE_SET
+AC_PROG_LIBTOOL
 
-GETTEXT_PACKAGE=csl
-AC_SUBST(GETTEXT_PACKAGE)
+# Checks for header files.
+AC_CHECK_HEADERS([arpa/inet.h fcntl.h netdb.h netinet/in.h stdint.h stdlib.h string.h sys/socket.h sys/time.h unistd.h])
 
-ALL_LINGUAS="cs de nl"
+# Checks for typedefs, structures, and compiler characteristics.
+AC_CHECK_HEADER_STDBOOL
+AC_C_INLINE
+AC_TYPE_OFF_T
+AC_TYPE_SIZE_T
 
-AM_GLIB_GNU_GETTEXT
-if test x$MSGFMT = "xno"; then
-  AC_ERROR([
-The msgfmt command is required to build CSL.  If it is installed
-on your system, ensure that it is in your path.  If it is not, install
-GNU gettext to continue.
-  ])
+# Checks for library functions.
+AC_FUNC_ERROR_AT_LINE
+AC_FUNC_MALLOC
+AC_FUNC_MMAP
+AC_FUNC_REALLOC
+AC_CHECK_FUNCS([gethostbyname gethostname gettimeofday inet_ntoa localtime_r memmove memset munmap select socket strcasecmp strchr strdup strerror strpbrk strrchr strspn strstr])
+
+
+# Checks for libraries.
+
+# wxWidgets
+AM_OPTIONS_WXCONFIG
+reqwx=2.9.5
+AM_PATH_WXCONFIG($reqwx, wxWin=1,,[std,aui])
+if test "$wxWin" != 1; then
+	AC_MSG_ERROR([
+		wxWidgets must be installed on your system.
+ 
+		Please check that wx-config is in path, the directory
+		where wxWidgets libraries are installed (returned by
+		'wx-config --libs' or 'wx-config --static --libs' command)
+		is in LD_LIBRARY_PATH or equivalent variable and
+		wxWidgets version is $reqwx or above.
+		])
 fi
+ 
+CPPFLAGS="$CPPFLAGS $WX_CPPFLAGS"
+CXXFLAGS="$CXXFLAGS $WX_CXXFLAGS_ONLY"
+wxtype=`echo $WX_CXXFLAGS | sed 's/\(.*\)\(ansi\|unicode\)\(.*\)/\2/'`
+wxversion="$WX_VERSION"
+AC_SUBST(WX_LIBS)
 
-dnl check for stuff required by libircclient and libGeoIP
-AC_CHECK_HEADERS(stdint.h)
-AC_CHECK_FUNCS([gettimeofday localtime_r socket inet_ntoa])
-AC_CHECK_FUNC(gethostbyname_r,[
-  AC_EGREP_HEADER(int.*gethostbyname_r,netdb.h,[
-    AC_DEFINE([GETHOSTBYNAME_R_RETURNS_INT],[1],[""])
-  ])
-])
 
-WXCONFIG=wx-config
-AC_ARG_WITH(wx-config,AC_HELP_STRING([--with-wx-config=FILE],
-                                     [Use the given wx-config script]),
-[
-  if test "$withval" != "yes" -a "$withval" != ""; then
-    WXCONFIG=$withval
-  fi
-])
-
-wxversion=0
-wxtype="unknown"
-
-AC_DEFUN([WXTEST],
-[
-  AC_REQUIRE([AC_PROG_AWK])
-  AC_MSG_CHECKING([wxWidgets version])
-  if wxversion=`$WXCONFIG --version`; then
-    AC_MSG_RESULT([$wxversion])
-  else
-    AC_MSG_RESULT([not found])
-    AC_MSG_ERROR([wxWidgets is required. Try --with-wx-config.])
-  fi
-])
-WXTEST
-
-dnl Check for minimum wx version
-vers=`echo $wxversion | $AWK 'BEGIN { FS = "."; } { printf "% d", ($1 * 1000 + $2) * 1000 + $3;}'`
-if test -n "$vers" && test "$vers" -ge 2008000; then
-  WX_CXXFLAGS="`$WXCONFIG --cxxflags | sed -e 's/-fno-exceptions//'`"
-  WX_LIBS="`$WXCONFIG --libs adv,aui,base,core,html,net,richtext,xml`"
-  wxtype=`echo $WX_CXXFLAGS | sed 's/\(.*\)\(ansi\|unicode\)\(.*\)/\2/'`
-else
-  AC_MSG_ERROR([wxWidgets 2.8.0 or newer is required])
-fi
-
-dnl speech-dispatcher
+# Optional speech-dispatcher
 use_speechd="yes"
 AC_ARG_ENABLE(speechd,AC_HELP_STRING([--disable-speechd],
                                      [disable speech-dispatcher support]),
@@ -81,7 +83,8 @@ if test "x$use_speechd" = "xyes"; then
 fi
 AC_SUBST(SPEECHD_LIBS)
 
-dnl libircclient
+
+# Optional libircclient
 use_internal_libircclient="yes"
 AC_CHECK_HEADERS(libircclient.h,use_internal_libircclient="no")
 if test "x$use_internal_libircclient" = "xyes"; then
@@ -90,8 +93,10 @@ else
   LIBIRCCLIENT_LIBS="-llibircclient"
 fi
 AM_CONDITIONAL(with_internal_libircclient,test "x$use_internal_libircclient" = "xyes")
+AC_SUBST(LIBIRCCLIENT_LIBS)
 
-dnl libGeoIP
+
+# Optional libGeoIP
 use_internal_geoip="yes"
 AC_CHECK_HEADERS(GeoIP.h,AC_CHECK_LIB(GeoIP,GeoIP_new,[use_internal_geoip="no"]))
 if test "x$use_internal_geoip" = "xyes"; then
@@ -100,8 +105,10 @@ else
   GEOIP_LIBS="-lGeoIP"
 fi
 AM_CONDITIONAL(with_internal_geoip,test "x$use_internal_geoip" = "xyes")
+AC_SUBST(GEOIP_LIBS)
 
-dnl GeoIP database
+
+# Optional GeoIP Database
 GEOIPDATADIR=""
 use_internal_geoip_db="yes"
 AC_ARG_WITH(geoip-datadir,AC_HELP_STRING([--with-geoip-datadir=DIR],
@@ -116,7 +123,8 @@ AC_ARG_WITH(geoip-datadir,AC_HELP_STRING([--with-geoip-datadir=DIR],
 AM_CONDITIONAL(with_internal_geoipdatabase,test "x$use_internal_geoip_db" = "xyes")
 AC_DEFINE_UNQUOTED([GEOIPDATADIR],["$GEOIPDATADIR"],[GeoIP database path])
 
-dnl map config tool
+
+# Build the map config tool
 cslmapcfgtool=yes
 AC_ARG_WITH(cslmapcfgtool,AC_HELP_STRING([--with-cslmapcfgtool],
                                          [build the map config tool]),
@@ -124,7 +132,8 @@ AC_ARG_WITH(cslmapcfgtool,AC_HELP_STRING([--with-cslmapcfgtool],
 )
 AM_CONDITIONAL(build_cslmapcfgtool,test "x$cslmapcfgtool" = "xyes")
 
-dnl check, if we have gcc 4.x and enable PCH
+
+# Enable precompiled headers
 AC_MSG_CHECKING([whether to use precompiled headers])
 use_pch=""
 AC_ARG_ENABLE(pch,AC_HELP_STRING([--enable-pch],[build using precompiled headers]),
@@ -158,16 +167,25 @@ else
 fi
 AM_CONDITIONAL(ENABLE_PCH,test "x$use_pch" = "xyes")
 
-CXXFLAGS="$CXXFLAGS $WX_CXXFLAGS"
-AC_SUBST(WX_LIBS)
-AC_SUBST(GEOIP_LIBS)
-AC_SUBST(LIBIRCCLIENT_LIBS)
 
-AC_OUTPUT(Makefile data/Makefile data/maps/Makefile \
-	data/maps/Sauerbraten/254/Makefile data/maps/Sauerbraten/256/Makefile data/maps/Sauerbraten/Makefile \
-	po/Makefile.in src/Makefile src/engine/Makefile src/irc/Makefile \
-	src/irc/libircclient/Makefile src/irc/libircclient/include/Makefile src/irc/libircclient/src/Makefile \
-	src/libGeoIP/Makefile src/pch/Makefile)
+AC_CONFIG_FILES([Makefile
+                 data/Makefile
+                 data/maps/Makefile
+                 data/maps/RedEclipse/256/Makefile
+                 data/maps/RedEclipse/Makefile
+                 data/maps/Sauerbraten/254/Makefile
+                 data/maps/Sauerbraten/256/Makefile
+                 data/maps/Sauerbraten/Makefile
+                 src/Makefile
+                 src/engine/Makefile
+                 src/irc/Makefile
+                 src/irc/libircclient/Makefile
+                 src/irc/libircclient/include/Makefile
+                 src/irc/libircclient/src/Makefile
+                 src/libGeoIP/Makefile
+                 src/pch/Makefile
+                 po/Makefile.in])
+AC_OUTPUT
 
 echo
 echo "--------------------------------------------------"
@@ -187,3 +205,4 @@ echo
 echo "Build map config tool.......... : $cslmapcfgtool"
 echo "--------------------------------------------------"
 echo
+

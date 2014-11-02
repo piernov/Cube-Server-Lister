@@ -16,7 +16,7 @@ csl_LDFLAGS = $(all_libraries)
 csl_LDADD = $(top_builddir)/src/engine/libcslengine.a \
 	$(top_builddir)/src/engine/libcsltools.a $(top_builddir)/src/irc/libcslirc.a ${GEOIP_LIBS} ${LIBIRCCLIENT_LIBS} \
 	${SPEECHD_LIBS} ${WX_LIBS} libcslpanelmap.a
-INCLUDES = -I$(top_srcdir)/src/irc/libircclient/include \
+AM_CPPFLAGS += -I$(top_srcdir)/src/irc/libircclient/include \
 	-I$(top_srcdir)/src/libGeoIP -I$(top_builddir)/src/pch -I$(top_srcdir)/src/img/flags
 cslmapcfgtool_SOURCES = CslMapCfgTool.cpp
 cslmapcfgtool_LDADD = libcslpanelmap.a \

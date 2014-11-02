@@ -12,4 +12,4 @@ libcslengine_a_SOURCES = CslEngine.cpp CslExtendedInfo.cpp CslGame.cpp \
 	CslGameAssaultCube.cpp CslGameBloodFrontier.cpp CslGameRedEclipse.cpp CslGameCube.cpp CslGameSauerbraten.cpp \
 	CslUDP.cpp cube_tools.cpp
 
-INCLUDES = -I$(top_builddir)/src/pch
+AM_CPPFLAGS = -I$(top_builddir)/src/pch
