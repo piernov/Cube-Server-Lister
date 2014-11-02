@@ -139,7 +139,7 @@ void CslDlgExtended::do_layout()
     wxFlexGridSizer* grid_sizer_checkboix = new wxFlexGridSizer(1, 2, 0, 0);
     wxFlexGridSizer* grid_sizer_info_team = new wxFlexGridSizer(1, 3, 0, 0);
     wxStaticBoxSizer* sizer_map_label = new wxStaticBoxSizer(sizer_map_label_staticbox, wxHORIZONTAL);
-    wxFlexGridSizer* grid_sizer_map_label = new wxFlexGridSizer(2, 1, 0, 0);
+    wxFlexGridSizer* grid_sizer_map_label = new wxFlexGridSizer(3, 1, 0, 0);
     wxFlexGridSizer* grid_sizer_author = new wxFlexGridSizer(1, 2, 0, 0);
     wxStaticBoxSizer* sizer_info = new wxStaticBoxSizer(sizer_info_staticbox, wxHORIZONTAL);
     wxFlexGridSizer* grid_sizer_info = new wxFlexGridSizer(4, 2, 0, 0);
